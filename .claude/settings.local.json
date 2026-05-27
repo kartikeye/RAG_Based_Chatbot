@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(Get-Process -Name \"node\" -ErrorAction SilentlyContinue)",
+      "PowerShell(netstat -ano)",
+      "PowerShell(taskkill /PID 37144 /F)",
+      "Bash(Get-ChildItem -Path \"c:\\\\Kartikeye\\\\Practise\\\\RAG_Chatbot\\\\RAG_Based_Chatbot\" -Recurse -Exclude node_modules -Name)",
+      "PowerShell(Get-Content \"C:\\\\Users\\\\karti\\\\AppData\\\\Local\\\\npm-cache\\\\_logs\\\\2026-05-27T03_34_04_368Z-debug-0.log\" -Tail 30 2>$null; Get-ChildItem \"C:\\\\Users\\\\karti\\\\AppData\\\\Local\\\\npm-cache\\\\_logs\\\\\" | Sort-Object LastWriteTime -Descending | Select-Object -First 1 | ForEach-Object { Get-Content $_.FullName -Tail 30 })",
+      "PowerShell(pnpm --version 2>$null)",
+      "PowerShell(if \\(-not $?\\) { \"pnpm not found\" })"
+    ]
+  }
+}

@@ -1,0 +1,32 @@
+# Dependencies
+node_modules/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment / secrets — NEVER commit these
+.env
+.env.local
+.env.*.local
+*.pem
+
+# Build outputs
+dist/
+build/
+.vite/
+.next/
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Docker volume mount (Postgres data)
+db/data/
+db/pgdata/
+
+# User uploads (we may store these temporarily during dev)
+backend/uploads/
+*.pdf-temp

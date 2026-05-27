@@ -1,0 +1,41 @@
+# docker-compose.yml
+#
+# Brings up a single Postgres 16 container with the pgvector extension installed.
+# Run:
+#     docker compose up -d
+# Stop:
+#     docker compose down          # keeps data
+#     docker compose down -v       # ALSO deletes the volume (fresh DB)
+#
+# Connection string for the backend:
+#     postgres://rag_user:rag_password@localhost:5432/rag_chatbot
+
+services:
+  postgres:
+    # Official pgvector image — Postgres 16 with the pgvector extension precompiled.
+    # Pin to a specific tag in production; ":pg16" is fine for learning.
+    image: pgvector/pgvector:pg16
+    container_name: rag_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: rag_user
+      POSTGRES_PASSWORD: rag_password
+      POSTGRES_DB: rag_chatbot
+    ports:
+      # host:container — exposes Postgres on localhost:5432 so the backend can connect
+      - "5432:5432"
+    volumes:
+      # Persistent data — survives container restarts
+      - pgdata:/var/lib/postgresql/data
+      # Any *.sql or *.sh files in this folder run ONCE on first container start
+      # This is how our schema gets applied automatically
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rag_user -d rag_chatbot"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  pgdata:
+    name: rag_pgdata
