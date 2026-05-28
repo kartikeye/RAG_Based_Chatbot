@@ -2,7 +2,7 @@
 
 ## What we built
 
-The chat query path: embed user question via Titan → vector search in pgvector scoped to the user → relevance threshold filter → call Claude Haiku with grounded prompt → return answer with source citations. The endpoint is `POST /chat`, requires auth, is rate-limited to 30 questions per user per hour, and short-circuits to "out of expertise" when no chunks are similar enough to be relevant.
+The chat query path: embed user question via Titan → vector search in pgvector scoped to the user → relevance threshold filter → call Claude 3.5 Haiku with grounded prompt → return answer with source citations. The endpoint is `POST /chat`, requires auth, is rate-limited to 30 questions per user per hour, and short-circuits to "out of expertise" when no chunks are similar enough to be relevant.
 
 ## How to use it
 
@@ -37,7 +37,7 @@ curl -X POST http://localhost:3000/chat \
 
 ### "Walk me through what happens when a user asks a question."
 
-The chat route receives the question, validates input length via zod (rejects bodies longer than 4000 chars before we touch a model), and confirms auth. Then the chat orchestrator runs four steps. **Step one**: embed the question via Bedrock Titan V2 — the same model that embedded every chunk during ingestion. This is non-negotiable; vectors from different models can't be meaningfully compared. **Step two**: run a top-5 vector search in pgvector, scoped to the authenticated user's chunks via `WHERE user_id = $1`. The search orders by `<=>` (cosine distance) so the ivfflat index is used. **Step three**: filter chunks where distance < 0.8 — our "actually relevant" threshold. If nothing passes the threshold, we short-circuit immediately and return "out of expertise" without calling Claude — saves money and removes the risk of hallucinated answers from weak context. **Step four**: if relevant chunks exist, we pass them to Claude Haiku with a system prompt that forces grounded answers and a fallback refusal. The response includes the answer plus citation metadata (filename, chunk index, distance) for every source used.
+The chat route receives the question, validates input length via zod (rejects bodies longer than 4000 chars before we touch a model), and confirms auth. Then the chat orchestrator runs four steps. **Step one**: embed the question via Bedrock Titan V2 — the same model that embedded every chunk during ingestion. This is non-negotiable; vectors from different models can't be meaningfully compared. **Step two**: run a top-5 vector search in pgvector, scoped to the authenticated user's chunks via `WHERE user_id = $1`. The search orders by `<=>` (cosine distance) so the ivfflat index is used. **Step three**: filter chunks where distance < 0.8 — our "actually relevant" threshold. If nothing passes the threshold, we short-circuit immediately and return "out of expertise" without calling Claude — saves money and removes the risk of hallucinated answers from weak context. **Step four**: if relevant chunks exist, we pass them to Claude 3.5 Haiku with a system prompt that forces grounded answers and a fallback refusal. The response includes the answer plus citation metadata (filename, chunk index, distance) for every source used.
 
 ### "What is cosine distance and why use it for retrieval?"
 
@@ -45,7 +45,7 @@ For unit-normalized embeddings — which Titan V2 produces because we set `norma
 
 ### "Why a threshold filter? Why not just send everything to Claude?"
 
-Three reasons. **Cost**: a Claude Haiku call is roughly two orders of magnitude more expensive than an embed call. If retrieval has nothing relevant, calling Claude burns money for no value. **Latency**: the LLM call is the slow step in the whole pipeline (~500–1500ms). Short-circuiting it makes "out of expertise" answers near-instant. **Quality**: if you stuff Claude full of weak context, the model can be tempted to reach — to anchor on the closest-but-still-irrelevant chunks and generate confident-sounding nonsense. Refusing pre-emptively with the threshold is the safer behavior. The 0.8 distance cutoff is calibrated for Titan V2 with normalize:true — strong matches typically sit at 0.2–0.5. Tuning the threshold against your specific corpus is a real practice; some systems keep it as a config knob.
+Three reasons. **Cost**: a Claude 3.5 Haiku call is roughly two orders of magnitude more expensive than an embed call. If retrieval has nothing relevant, calling Claude burns money for no value. **Latency**: the LLM call is the slow step in the whole pipeline (~500–1500ms). Short-circuiting it makes "out of expertise" answers near-instant. **Quality**: if you stuff Claude full of weak context, the model can be tempted to reach — to anchor on the closest-but-still-irrelevant chunks and generate confident-sounding nonsense. Refusing pre-emptively with the threshold is the safer behavior. The 0.8 distance cutoff is calibrated for Titan V2 with normalize:true — strong matches typically sit at 0.2–0.5. Tuning the threshold against your specific corpus is a real practice; some systems keep it as a config knob.
 
 ### "How do you stop the LLM from hallucinating?"
 
@@ -65,7 +65,7 @@ Embeddings from different models live in **different vector spaces**. The 1024 d
 
 ### "What's the cost per chat request?"
 
-Order-of-magnitude: one Titan embed call (~$0.00002 for a typical question) plus one Claude Haiku call (input + output tokens). At Haiku's roughly $0.25 per million input tokens and $1.25 per million output tokens, a typical chat request with 5 chunks of context (~3000 input tokens, ~200 output tokens) costs about **$0.001 per question** — a tenth of a cent. A user asking 100 questions costs 10 cents. The "out of expertise" short-circuit path is essentially free (one embed call, no Claude call).
+Order-of-magnitude: one Titan embed call (~$0.00002 for a typical question) plus one Claude 3.5 Haiku call (input + output tokens). At Haiku's roughly $0.25 per million input tokens and $1.25 per million output tokens, a typical chat request with 5 chunks of context (~3000 input tokens, ~200 output tokens) costs about **$0.001 per question** — a tenth of a cent. A user asking 100 questions costs 10 cents. The "out of expertise" short-circuit path is essentially free (one embed call, no Claude call).
 
 ### "How would you add response streaming?"
 

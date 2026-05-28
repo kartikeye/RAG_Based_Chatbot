@@ -6,13 +6,22 @@ A complete React + Vite + TypeScript single-page app with five screens: Login, S
 
 ## How to run it
 
+From the repo root (recommended — starts everything with one command):
+
 ```bash
-cd C:\Kartikeye\Practise\RAG_Chatbot\RAG_Based_Chatbot\frontend
-npm install
-npm run dev          # http://localhost:5173
+npm run install:all   # first time only
+npm run dev           # http://localhost:5173 (frontend) + http://localhost:3000 (backend)
 ```
 
-In a separate terminal, make sure the backend is running (`cd backend && npm run dev`) and Postgres is up (`docker compose up -d`). Open http://localhost:5173, sign up, upload a PDF, ask a question. That's the full product.
+Open http://localhost:5173, sign up, upload a PDF, ask a question. That's the full product.
+
+To run the frontend in isolation:
+
+```bash
+cd C:\Kartikeye\Practise\RAG_Chatbot\RAG_Based_Chatbot\frontend
+npm install --legacy-peer-deps
+npm run dev          # http://localhost:5173
+```
 
 For production:
 
