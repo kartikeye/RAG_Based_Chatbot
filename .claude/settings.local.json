@@ -33,7 +33,14 @@
       "PowerShell(docker run -d --name rag_postgres -p 5433:5432 -e POSTGRES_USER=rag_user -e POSTGRES_PASSWORD=rag_password -e POSTGRES_DB=rag_chatbot -v rag_pgdata:/var/lib/postgresql/data -v \"c:/Kartikeye/Practise/RAG_Chatbot/RAG_Based_Chatbot/db/init:/docker-entrypoint-initdb.d\" --health-cmd \"pg_isready -U rag_user -d rag_chatbot\" --health-interval 5s pgvector/pgvector:pg16)",
       "PowerShell(docker exec rag_postgres pg_isready -U rag_user -d rag_chatbot 2>&1)",
       "PowerShell(netstat -ano | findstr \":3000\" | ForEach-Object { \\($_ -split '\\\\s+'\\)[5] } | Sort-Object -Unique | ForEach-Object { taskkill /PID $_ /F 2>$null }; Start-Sleep -Seconds 2; netstat -ano | findstr \":3000\")",
-      "Bash(python3 -c *)"
+      "Bash(python3 -c *)",
+      "PowerShell(netstat -ano | findstr \":3000\" | ForEach-Object { \\($_ -split '\\\\s+'\\)[5] } | Sort-Object -Unique | ForEach-Object { taskkill /PID $_ /F 2>$null }; Write-Host \"Port cleared\")",
+      "Bash(node node_modules/tsx/dist/cli.mjs src/server.ts > /tmp/srv3.log 2>&1 & *)",
+      "Read(//c/Users/karti/AppData/Local/Temp/**)",
+      "Bash(node_modules\\\\.bin\\\\concurrently --version)"
+    ],
+    "additionalDirectories": [
+      "\\tmp"
     ]
   }
 }

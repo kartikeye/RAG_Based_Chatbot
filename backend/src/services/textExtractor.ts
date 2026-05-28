@@ -1,4 +1,4 @@
-import pdfParse from 'pdf-parse';
+﻿import pdfParse from 'pdf-parse';
 import mammoth from 'mammoth';
 
 export const SUPPORTED_MIME_TYPES = new Set([
@@ -51,7 +51,7 @@ function cleanText(text: string): string {
   return text
     .replace(/\r\n?/g, '\n')
     .replace(/[\x00-\x08\x0B-\x1F\x7F]/g, '')
-    .replace(/[  -​  　]/g, ' ')
+    .replace(/[   - ​  　﻿]/g, ' ')
     .replace(/\n{3,}/g, '\n\n')
     .replace(/[ \t]+/g, ' ')
     .split('\n')

@@ -6,6 +6,7 @@ import morgan from 'morgan';
 import { env } from './config/env.js';
 import authRoutes from './routes/auth.js';
 import documentRoutes from './routes/documents.js';
+import chatRoutes from './routes/chat.js';
 import { errorHandler } from './middleware/error.js';
 
 export const app = express();
@@ -27,6 +28,7 @@ app.get('/health', (_req, res) => {
 
 app.use('/auth', authRoutes);
 app.use('/documents', documentRoutes);
+app.use('/chat', chatRoutes);
 
 app.use((_req, res) => {
   res.status(404).json({ error: 'Not found' });
