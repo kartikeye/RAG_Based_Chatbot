@@ -29,11 +29,6 @@ export interface RetrievedChunk {
 export interface RetrieveOptions {
   /** Number of nearest neighbors to fetch. Default 5. */
   k?: number;
-  /**
-   * ivfflat.probes — how many clusters the index scans at query time.
-   * Higher = better recall, slower query. Default 10.
-   */
-  probes?: number;
 }
 
 /**
@@ -52,19 +47,14 @@ export async function retrieveTopK(
     );
   }
   const k = options.k ?? 5;
-  const probes = options.probes ?? 10;
 
   // pgvector wants the embedding as a string like '[0.1, 0.2, ...]'.
   // The ::vector cast in the SQL converts it to the column type.
   const embeddingLiteral = `[${queryEmbedding.join(',')}]`;
 
-  // We use an explicit client + transaction so that `SET LOCAL` for
-  // ivfflat.probes only affects this query. Without the transaction,
-  // SET would leak into whichever request next borrows this connection.
   const client = await getClient();
   try {
     await client.query('BEGIN');
-    await client.query(`SET LOCAL ivfflat.probes = ${probes}`);
 
     const result = await client.query<{
       id: string;
