@@ -30,3 +30,7 @@ db/pgdata/
 # User uploads (we may store these temporarily during dev)
 backend/uploads/
 *.pdf-temp
+
+# Documentation
+docs
+
