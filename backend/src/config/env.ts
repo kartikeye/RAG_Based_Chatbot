@@ -2,7 +2,7 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-function required(name: string): string {
+function required(name: string): string {       //helper function to safetly read the environment varibale
   const value = process.env[name];
   if (!value || value.trim() === '') {
     throw new Error(
