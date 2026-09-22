@@ -17,7 +17,11 @@ build/
 .vite/
 .next/
 
-# Editor / OS
+# Editor / OS / local tool state
+# .claude/settings.local.json records machine-specific paths, local dev
+# credentials and approved shell commands — never useful to a reader, and
+# free reconnaissance in a public repo.
+.claude/
 .vscode/
 .idea/
 .DS_Store

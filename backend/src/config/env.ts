@@ -45,7 +45,41 @@ export const env = Object.freeze({
   CORS_ORIGINS: optional('CORS_ORIGINS', 'http://localhost:5173')
     .split(',')
     .map((s) => s.trim()),
+
+  // How many reverse proxies sit in front of this app. See app.ts for why
+  // this matters and why `true` is the wrong answer.
+  //   unset / '0' / 'false' -> trust nobody (correct for local dev)
+  //   '1'                   -> exactly one proxy (nginx, ALB, Render, Heroku)
+  //   'loopback'            -> Express's named preset
+  TRUST_PROXY: parseTrustProxy(optional('TRUST_PROXY', '0')),
 });
+
+/**
+ * Express accepts a boolean, a hop count, or a preset/IP list for
+ * `trust proxy`. We normalise the env string into one of those.
+ *
+ * Deliberately NOT supporting `true`: see the warning in app.ts.
+ */
+function parseTrustProxy(raw: string): number | string | false {
+  const value = raw.trim().toLowerCase();
+  if (value === '' || value === '0' || value === 'false') return false;
+
+  const hops = Number(value);
+  if (Number.isInteger(hops) && hops > 0) return hops;
+
+  if (value === 'true') {
+    throw new Error(
+      'TRUST_PROXY=true is unsafe: it makes Express trust any client-supplied ' +
+      'X-Forwarded-For header, which lets anyone spoof their IP and bypass ' +
+      'IP-based rate limiting. Set the number of proxies in front of this app ' +
+      '(e.g. TRUST_PROXY=1), or a preset like "loopback".'
+    );
+  }
+
+  // Named preset ('loopback', 'linklocal', 'uniquelocal') or a comma-separated
+  // list of trusted proxy IPs/subnets — Express validates these itself.
+  return value;
+}
 
 export type Env = typeof env;
 

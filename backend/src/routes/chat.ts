@@ -12,20 +12,24 @@ import { Router } from 'express';
 import { z } from 'zod';
 
 import { requireAuth } from '../middleware/auth.js';
-import { createRateLimiter } from '../middleware/rateLimiter.js';
+import { createRateLimiter, userKey } from '../middleware/rateLimiter.js';
 import { HttpError } from '../middleware/error.js';
 import { answerQuestion } from '../services/chat.js';
 
 const router = Router();
 
-// 30 chat requests per user per hour. Per USER (not per IP) once auth has
-// run — we key on the authenticated userId so a corporate NAT doesn't share
-// a bucket. The rate limiter uses req.ip by default; here we override after
-// auth has populated req.userId.
+// 30 chat requests per user per hour — chat costs real money per call.
+//
+// Keyed on the authenticated userId, NOT the IP, so a shared corporate or
+// campus NAT doesn't put every employee in one bucket, and so an attacker
+// can't reset their allowance by rotating IP addresses. This only works
+// because the limiter is mounted AFTER requireAuth below — req.userId does
+// not exist before that middleware runs.
 const chatLimiter = createRateLimiter({
   windowMs: 60 * 60 * 1000,
   max: 30,
   keyPrefix: 'chat',
+  keyGenerator: userKey,
 });
 
 // MAX_QUESTION_CHARS = 4000 in bedrock.ts. Match here so we 400 BEFORE

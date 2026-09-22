@@ -8,9 +8,15 @@ import { createRateLimiter } from '../middleware/rateLimiter.js';
 
 const router = Router();
 
+// creates rate limiters to prevent abuse/brute-force attacks on auth endpoints:
+
 const signupLimiter = createRateLimiter({ windowMs: 15 * 60 * 1000, max: 5, keyPrefix: 'signup' });
 const loginLimiter = createRateLimiter({ windowMs: 15 * 60 * 1000, max: 10, keyPrefix: 'login' });
 
+// zod : In auth.ts, it's likely used to validate signup/login request bodies (correct email format, 
+// password length, required fields, etc.) and reject malformed requests with clear errors before they hit your business logic.
+
+//set up the scehma for signup and validate the req.body
 const signupSchema = z.object({
   email: z.string().email().max(254).toLowerCase().trim(),
   password: z.string().min(8).max(128),
