@@ -8,10 +8,13 @@ export default defineConfig({
     proxy: {
       // Forward API calls to the Express backend during dev so we don't
       // fight CORS or hard-code URLs.
-      '/auth': 'http://localhost:3000',
-      '/documents': 'http://localhost:3000',
-      '/chat': 'http://localhost:3000',
-      '/health': 'http://localhost:3000',
+      //
+      // Scoped to /api only — NOT /documents, /chat, etc. Those are also
+      // React Router route paths in the SPA. A proxy on the bare path would
+      // intercept full-page navigations (e.g. a hard refresh on /documents)
+      // and forward them to Express, which has no Authorization header for
+      // a browser navigation and returns 401 JSON instead of index.html.
+      '/api': 'http://localhost:3000',
     },
   },
 });

@@ -52,9 +52,9 @@ app.get('/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-app.use('/auth', authRoutes);
-app.use('/documents', documentRoutes);
-app.use('/chat', chatRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/documents', documentRoutes);
+app.use('/api/chat', chatRoutes);
 
 app.use((_req, res) => {
   res.status(404).json({ error: 'Not found' });

@@ -97,22 +97,22 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
 
 export const api = {
   signup: (email: string, password: string) =>
-    request<AuthResponse>('/auth/signup', { body: { email, password } }),
+    request<AuthResponse>('/api/auth/signup', { body: { email, password } }),
 
   login: (email: string, password: string) =>
-    request<AuthResponse>('/auth/login', { body: { email, password } }),
+    request<AuthResponse>('/api/auth/login', { body: { email, password } }),
 
-  listDocuments: () => request<DocumentsListResponse>('/documents'),
+  listDocuments: () => request<DocumentsListResponse>('/api/documents'),
 
   uploadDocument: (file: File) => {
     const fd = new FormData();
     fd.append('file', file);
-    return request<UploadResponse>('/documents', { method: 'POST', formData: fd });
+    return request<UploadResponse>('/api/documents', { method: 'POST', formData: fd });
   },
 
   deleteDocument: (id: string) =>
-    request<null>(`/documents/${id}`, { method: 'DELETE' }),
+    request<null>(`/api/documents/${id}`, { method: 'DELETE' }),
 
   chat: (question: string) =>
-    request<ChatResponse>('/chat', { body: { question } }),
+    request<ChatResponse>('/api/chat', { body: { question } }),
 };
