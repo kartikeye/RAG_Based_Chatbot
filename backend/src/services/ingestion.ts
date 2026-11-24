@@ -1,6 +1,6 @@
 import { extractText } from './textExtractor.js';
 import { chunkText, type Chunk } from './chunker.js';
-import { embedText } from './bedrock.js';
+import { embedText } from './aiProvider.js';
 import { getClient, query } from '../db/pool.js';
 
 const EMBED_CONCURRENCY = 5;

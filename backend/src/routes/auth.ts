@@ -31,12 +31,13 @@ const DUMMY_HASH = '$2a$12$Cqr0bGqzZ.Y3.D6T0X0WyOhpVgRZW7eW2BzZ4Xkjz0p1Bv8FmCqOe
 
 router.post('/signup', signupLimiter, async (req, res, next) => {
   try {
-    const parsed = signupSchema.safeParse(req.body);
+    const parsed = signupSchema.safeParse(req.body);  //safeParse is a Zod method for validating data against a schema without throwing an exception.
     if (!parsed.success) {
       throw new HttpError(400, 'Invalid input', parsed.error.flatten());
     }
     const { email, password } = parsed.data;
 
+    //hashPassword converts the user's plaintext password into an irreversible, salted hash before it ever touches the database
     const passwordHash = await hashPassword(password);
 
     let userId: string;

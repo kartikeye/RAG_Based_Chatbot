@@ -12,7 +12,7 @@
 //   We directly return the "out of expertise" message. This is faster, cheaper,
 //   and removes the risk of Claude inventing answers from weak context.
 
-import { embedText, generateAnswer } from './bedrock.js';
+import { embedText, generateAnswer } from './aiProvider.js';
 import { retrieveTopK, type RetrievedChunk } from './retrieval.js';
 
 /**

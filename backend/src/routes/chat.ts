@@ -32,8 +32,8 @@ const chatLimiter = createRateLimiter({
   keyGenerator: userKey,
 });
 
-// MAX_QUESTION_CHARS = 4000 in bedrock.ts. Match here so we 400 BEFORE
-// embedding work happens (saves a model call on bad input).
+// MAX_QUESTION_CHARS = 4000 in both bedrock.ts and ollama.ts. Match here so
+// we 400 BEFORE embedding work happens (saves a model call on bad input).
 const chatSchema = z.object({
   question: z.string().min(1).max(4000).trim(),
 });

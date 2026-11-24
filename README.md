@@ -8,10 +8,18 @@ A retrieval-augmented generation chatbot that answers strictly from user-uploade
 |---|---|---|
 | Frontend | React 18 + Vite + TypeScript | Fast HMR dev loop; small bundle; modern tooling |
 | Backend | Node.js + Express + TypeScript | Lightweight HTTP server with mature middleware ecosystem |
-| LLM | AWS Bedrock — Claude 3.5 Haiku | Fast, cheap, more than capable for grounded Q&A |
-| Embeddings | AWS Bedrock — Amazon Titan Text Embeddings V2 | 1024-dim; same Bedrock account so one integration |
+| LLM / Embeddings | Ollama (default) or AWS Bedrock | Pluggable via `LLM_PROVIDER` — see below |
 | Vector store | Postgres + pgvector | ACID + relational joins + vector search in one DB |
 | Local infra | Docker Compose | One command to bring up the DB |
+
+### LLM provider: Ollama (default) or Bedrock
+
+Embeddings and generation go through `backend/src/services/aiProvider.ts`, which switches between two interchangeable backends based on `LLM_PROVIDER` in `.env`:
+
+- **`ollama`** (default) — runs fully locally via [Ollama](https://ollama.com), no AWS account or billing needed. Uses `mxbai-embed-large` (1024-dim embeddings) and `llama3.1` (generation).
+- **`bedrock`** — AWS Bedrock, Amazon Titan Text Embeddings V2 + Claude Haiku. Fully implemented in `backend/src/services/bedrock.ts`, untouched and ready to use again any time you have Bedrock access — just set `LLM_PROVIDER=bedrock` and fill in the `AWS_*` vars.
+
+Both produce 1024-dim vectors, so switching providers never requires a database migration.
 
 ## Quick start — one command
 
@@ -39,14 +47,21 @@ npm run stop
 
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/) running
 - Node.js >= 20
-- AWS account with Bedrock access (Claude 3.5 Haiku + Titan Text Embeddings V2 enabled in your region)
+- [Ollama](https://ollama.com/download) installed and running (default LLM provider — no AWS account needed), with the two models pulled:
+  ```bash
+  ollama pull mxbai-embed-large
+  ollama pull llama3.1
+  ```
+- Optional: an AWS account with Bedrock access (Claude Haiku + Titan Text Embeddings V2 enabled in your region), only if you want `LLM_PROVIDER=bedrock` instead
 
 ## Environment setup
 
 ```bash
 cd backend
 cp .env.example .env
-# Edit .env — fill in AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION
+# Defaults to LLM_PROVIDER=ollama — works with no further edits once Ollama
+# is running with the models above pulled. To use Bedrock instead, set
+# LLM_PROVIDER=bedrock and fill in AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION.
 ```
 
 ## Folder structure
@@ -71,7 +86,7 @@ All five milestones complete. The product is end-to-end functional:
 | 1 | Infrastructure: Docker Postgres + pgvector schema | Done |
 | 2 | Backend: Express + JWT auth + bcrypt | Done |
 | 3 | Ingestion: upload → extract → chunk → embed → store | Done |
-| 4 | Chat: embed question → vector search → Claude 3.5 Haiku → answer | Done |
+| 4 | Chat: embed question → vector search → generate (Ollama/Bedrock) → answer | Done |
 | 5 | Frontend: React SPA with auth, upload, and chat screens | Done |
 
 **Known limitations (next polish pass):**
@@ -80,5 +95,6 @@ All five milestones complete. The product is end-to-end functional:
 - JWT stored in localStorage (XSS-vulnerable; production would use httpOnly cookie + refresh token)
 - No file-upload progress indicator
 - No end-to-end or component tests
+- Upload size capped at 10MB per file (`MAX_FILE_BYTES` in `backend/src/routes/documents.ts`); oversized files get a clean `413`, not an error
 
 See `docs/` for milestone teaching notes and `RAG_Based_Chatbot_docs.md` for consolidated interview prep.

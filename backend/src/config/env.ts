@@ -28,11 +28,24 @@ export const env = Object.freeze({
   JWT_SECRET: required('JWT_SECRET'),
   JWT_EXPIRES_IN: optional('JWT_EXPIRES_IN', '7d'),
 
-  // AWS_REGION is required. Credentials (ACCESS_KEY_ID / SECRET_ACCESS_KEY)
-  // are optional here because the AWS SDK uses its own default provider chain:
-  // env vars → ~/.aws/credentials → EC2/ECS/Lambda IAM role. In production,
-  // attach an IAM role to the compute instance instead of using static keys.
-  AWS_REGION: required('AWS_REGION'),
+  // Which embedding/generation backend services/aiProvider.ts routes to.
+  // 'ollama' needs nothing but a local Ollama install (no billing, no AWS
+  // account). 'bedrock' is kept fully working behind the same interface for
+  // whenever an AWS account with Bedrock access is available again.
+  LLM_PROVIDER: optional('LLM_PROVIDER', 'ollama') as 'ollama' | 'bedrock',
+
+  OLLAMA_BASE_URL: optional('OLLAMA_BASE_URL', 'http://localhost:11434'),
+  // 1024-dim output — matches the existing `vector(1024)` column, so no
+  // schema migration is needed when switching providers.
+  OLLAMA_EMBEDDING_MODEL: optional('OLLAMA_EMBEDDING_MODEL', 'mxbai-embed-large'),
+  OLLAMA_GENERATION_MODEL: optional('OLLAMA_GENERATION_MODEL', 'llama3.1'),
+
+  // AWS_REGION is only required when LLM_PROVIDER=bedrock. Credentials
+  // (ACCESS_KEY_ID / SECRET_ACCESS_KEY) are optional here because the AWS
+  // SDK uses its own default provider chain: env vars → ~/.aws/credentials →
+  // EC2/ECS/Lambda IAM role. In production, attach an IAM role to the
+  // compute instance instead of using static keys.
+  AWS_REGION: optional('AWS_REGION', ''),
   BEDROCK_EMBEDDING_MODEL_ID: optional(
     'BEDROCK_EMBEDDING_MODEL_ID',
     'amazon.titan-embed-text-v2:0'
@@ -87,5 +100,12 @@ if (env.JWT_SECRET.length < 32) {
   console.warn(
     '[config] WARNING: JWT_SECRET is shorter than 32 chars. ' +
     'Generate a stronger one for production.'
+  );
+}
+
+if (env.LLM_PROVIDER === 'bedrock' && !env.AWS_REGION) {
+  throw new Error(
+    'LLM_PROVIDER=bedrock requires AWS_REGION to be set.\n' +
+    'Set AWS_REGION in backend/.env, or switch LLM_PROVIDER=ollama.'
   );
 }
