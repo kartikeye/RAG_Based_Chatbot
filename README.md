@@ -97,4 +97,4 @@ All five milestones complete. The product is end-to-end functional:
 - No end-to-end or component tests
 - Upload size capped at 10MB per file (`MAX_FILE_BYTES` in `backend/src/routes/documents.ts`); oversized files get a clean `413`, not an error
 
-See `docs/` for milestone teaching notes and `RAG_Based_Chatbot_docs.md` for consolidated interview prep.
+See `docs/` for milestone-by-milestone teaching notes — each one documents what was built and the architectural rationale behind it, interview-style.

@@ -36,5 +36,7 @@ backend/uploads/
 *.pdf-temp
 
 # Documentation
-docs
+# Milestone docs + typescript-migration.md are public (showcase content).
+# This one is a personal interview cram-sheet — keep it local-only.
+docs/RAG_Based_Chatbot_docs.md
 
