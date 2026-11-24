@@ -6,7 +6,14 @@ A working Express backend with: environment-driven config, a Postgres connection
 
 ## How to run it
 
-First time setup (one terminal):
+From the repo root (recommended — starts everything):
+
+```bash
+npm run install:all   # first time only
+npm run dev           # starts Postgres + backend + frontend concurrently
+```
+
+Or to run just the backend in isolation:
 
 ```bash
 cd C:\Kartikeye\Practise\RAG_Chatbot\RAG_Based_Chatbot
@@ -14,7 +21,7 @@ docker compose up -d                 # make sure Postgres is running
 cd backend
 cp .env.example .env                 # then EDIT .env with real AWS keys
 npm install
-npm run dev                          # nodemon, restarts on save
+npm run dev                          # tsx watch, restarts on save
 ```
 
 In another terminal, test the auth endpoints:

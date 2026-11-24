@@ -9,10 +9,19 @@ This document captures what we built in Milestone 1, *why* we built it that way,
 3. `docker-compose.yml` for a one-command Postgres + pgvector dev database
 4. `db/init/01_schema.sql` with `users`, `documents`, `chunks` tables and a vector index
 
-## How to start the database
+## How to start the whole project
+
+From the repo root (starts DB + backend + frontend in one command):
 
 ```bash
-cd C:\Kartikeye\Practise\RAG_Chatbot\RAG_Based_Chatbot
+npm run install:all   # first time only
+npm run dev           # starts Postgres, Express, and Vite concurrently
+npm run stop          # stops the Postgres container
+```
+
+To manage the database container independently:
+
+```bash
 docker compose up -d           # starts Postgres in the background
 docker compose logs postgres   # tail logs if you want to watch the boot
 docker compose down            # stop, keep data

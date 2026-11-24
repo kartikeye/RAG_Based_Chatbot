@@ -6,7 +6,12 @@ The end-to-end document ingestion flow: multer for file upload, three format-spe
 
 ## How to run it
 
-After `npm install` picks up the new deps:
+From the repo root (starts everything):
+```bash
+npm run dev
+```
+
+Or test the ingestion endpoints directly (after `npm install` picks up deps):
 
 ```bash
 # Health check (no auth needed)
